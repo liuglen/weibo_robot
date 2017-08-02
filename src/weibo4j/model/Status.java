@@ -17,7 +17,7 @@ public class Status extends WeiboResponse {
 	private Date createdAt;                              //status创建时间
 	private String id;                                   //status id
 	private String mid;                                  //微博MID
-	private long idstr;                                  //保留字段，请勿使用                     
+	private long idstr = 0;                                  //保留字段，请勿使用                     
 	private String text;                                 //微博内容
 	private Source source;                               //微博来源
 	private boolean favorited;                           //是否已收藏

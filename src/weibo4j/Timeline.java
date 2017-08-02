@@ -252,7 +252,30 @@ public class Timeline extends Weibo {
 								+ "statuses/home_timeline.json", parList,
 						access_token));
 	}
-
+	
+	/**
+	 * 获取当前登录用户及其所关注用户的最新微博
+	 * 
+	 * @param map
+	 *            参数列表
+	 * @return
+	 * @throws WeiboException
+	 *             when Weibo service or network is unavailable
+	 * @version weibo4j-V2 1.0.2
+	 * @see http://open.weibo.com/wiki/2/statuses/home_timeline
+	 * @since JDK 1.5
+	 */
+	public StatusWapper getHomeTimeline(Integer since_id, Integer count)
+			throws WeiboException {
+		return Status
+				.constructWapperStatus(client.get(
+						WeiboConfig.getValue("baseURL")
+								+ "statuses/home_timeline.json", new PostParameter[] {
+										new PostParameter("since_id", since_id
+												.toString()),
+										new PostParameter("count", count.toString()) },
+						access_token));
+	}
 	/**
 	 * 获取某个用户最新发表的微博列表
 	 * 
@@ -781,6 +804,18 @@ public class Timeline extends Weibo {
 						access_token).asJSONObject();
 	}
 
+	/**
+	 * 图灵机器人API
+	 */
+	public JSONObject tulingRobot(String text)
+			throws Exception {
+		return client
+				.get("http://www.tuling123.com/openapi/api",
+						new PostParameter[] { new PostParameter("key","740f17de3360a7b64e81dd23364b733e"),
+								new PostParameter("info", text),
+								new PostParameter("userid", "123abc") }
+					,access_token).asJSONObject();
+	}
 	/**
 	 * 通过微博MID获取其ID
 	 * 
