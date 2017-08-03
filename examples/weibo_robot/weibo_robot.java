@@ -1,12 +1,18 @@
 package weibo_robot;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import weibo4j.Comments;
 import weibo4j.Timeline;
+import weibo4j.examples.oauth2.Log;
+import weibo4j.http.ImageItem;
 import weibo4j.model.Comment;
 import weibo4j.model.Paging;
 import weibo4j.model.Status;
@@ -24,21 +30,28 @@ public class weibo_robot {
 	}
 	
 	public static void main(String [] args) throws Exception{
-		List<Status> status = get_latest_weibo();
-		for(Status each : status){
-			comment_weibo(each.getText(),each.getId());
-		}	
+		//List<Status> status = get_latest_weibo();
+		//for(Status each : status){
+		//	comment_weibo(each.getText(),each.getId());
+		//}
+		share_weibo("测试","test.jpg");
 	}
 	
-	
+	/**
+	 * 转发微博
+	 * @param text
+	 */
 	public static void repost_weibo(String text){
 		
 	}
-	
+	/**
+	 * 获取最新微博
+	 * @return
+	 */
 	public static List<Status> get_latest_weibo(){
 		Timeline tm = new Timeline(access_token);
 		try {
-			Paging paging = new Paging(1,100,lastest_id);
+			//Paging paging = new Paging(1,100,lastest_id);
 			StatusWapper status = tm.getFriendsTimeline();
 			lastest_id = status.getStatuses().get(0).getIdstr() > 0 ? status.getStatuses().get(0).getIdstr(): lastest_id;
 			return status.getStatuses();
@@ -47,7 +60,12 @@ public class weibo_robot {
 		}
 		return null;
 	}
-	
+	/**
+	 * 评论微博
+	 * @param text
+	 * @param strid
+	 * @throws Exception
+	 */
 	public static void comment_weibo(String text, String strid) throws Exception{
 		JSONObject answer = new JSONObject();
 		try{
@@ -59,13 +77,19 @@ public class weibo_robot {
 		Comments cm = new Comments(access_token);
 		try {
 			Comment comment = cm.createComment(answer.getString("text"), strid);
-			//Log.logInfo(comment.toString());
+			Log.logInfo(comment.toString());
 		} catch (WeiboException e) {
 			e.printStackTrace();
 		}
 	}
-
-	public static void update_weibo(String text) throws WeiboException, InterruptedException {
+	
+	/**
+	 * 分享第三方链接到微博
+	 * @param text
+	 * @throws WeiboException
+	 * @throws InterruptedException
+	 */
+	public static void share_weibo(String text) throws WeiboException, InterruptedException {
 		//String access_token = "2.00e6JrLGUFJn_Ce98f8c1094fIN44E";
 		//Date date = new Date();
 		String statuses = text + "test weibo! https://www.baidu.com ";
@@ -83,7 +107,48 @@ public class weibo_robot {
 			Thread.sleep(1000);
 		}
 	}
-	
+	/**
+	 * 分享有图片的第三方链接到微博
+	 * @param text
+	 * @param PicName
+	 * @throws WeiboException
+	 * @throws InterruptedException
+	 */
+	public static void share_weibo(String text, String PicName) throws WeiboException, InterruptedException {
+		//String access_token = "2.00e6JrLGUFJn_Ce98f8c1094fIN44E";
+		while(true){
+			Status status = new Status();
+			try {
+				try {
+					Date date = new Date(); 
+					byte[] content = readFileImage("test.jpg");
+					System.out.println("content length:" + content.length);
+					ImageItem pic = new ImageItem("pic", content);
+					String s = java.net.URLEncoder.encode(date+ text, "utf-8") + "http://www.baidu.com";
+					String access_token = "2.00e6JrLGUFJn_Ce98f8c1094fIN44E";
+					Timeline tm = new Timeline(access_token);
+					status = tm.share(s, pic);
+
+					System.out.println("Successfully upload the status to ["
+							+ status.getText() + "].");
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			} catch (Exception ioe) {
+				System.out.println("Failed to read the system input.");
+			}
+			if(status.getUser()!= null)
+				break;
+			Thread.sleep(1000);
+		}
+	}
+	/**
+	 * 使用JSON发送POST请求
+	 * @param Url
+	 * @param obj
+	 * @return
+	 * @throws Exception
+	 */
 	public static String httpPostWithJSON(String Url, JSONObject obj) throws Exception {
         try {
             URL url = new URL(Url);
@@ -125,5 +190,23 @@ public class weibo_robot {
         }
 		return "";
     }
-  
+	/**
+	 * 读取图片文件
+	 * @param filename
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] readFileImage(String filename) throws IOException {
+		BufferedInputStream bufferedInputStream = new BufferedInputStream(
+				new FileInputStream(filename));
+		int len = bufferedInputStream.available();
+		byte[] bytes = new byte[len];
+		int r = bufferedInputStream.read(bytes);
+		if (len != r) {
+			bytes = null;
+			throw new IOException("读取文件不正确");
+		}
+		bufferedInputStream.close();
+		return bytes;
+	}
 }

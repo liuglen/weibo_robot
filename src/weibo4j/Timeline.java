@@ -805,7 +805,10 @@ public class Timeline extends Weibo {
 	}
 
 	/**
-	 * 图灵机器人API
+	 * 图灵机器人api
+	 * @param text
+	 * @return
+	 * @throws Exception
 	 */
 	public JSONObject tulingRobot(String text)
 			throws Exception {
@@ -909,6 +912,12 @@ public class Timeline extends Weibo {
 				access_token));
 	}
 	
+	/**
+	 * 分享第三方链接到微博
+	 * @param status
+	 * @return
+	 * @throws WeiboException
+	 */
 	public Status share(String status) throws WeiboException {
 		return new Status(client.post(WeiboConfig.getValue("baseURL")
 				+ "statuses/share.json",
@@ -916,6 +925,19 @@ public class Timeline extends Weibo {
 				access_token));
 	}
 
+	/**
+	 * 分享第三方链接到微博并配有一张图片
+	 * @param status
+	 * @param item
+	 * @return
+	 * @throws WeiboException
+	 */
+	public Status share(String status, ImageItem item) throws WeiboException {
+		return new Status(client.multPartURL(WeiboConfig.getValue("baseURL")
+			+ "statuses/share.json",
+			new PostParameter[] { new PostParameter("status", status) },
+			item, access_token));
+	}
 	/**
 	 * 转发一条微博
 	 * 

@@ -3,6 +3,7 @@ package weibo4j.examples.timeline;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 
 import weibo4j.Timeline;
 import weibo4j.http.ImageItem;
@@ -13,13 +14,14 @@ public class Upload {
 	public static void main(String args[]) {
 		try {
 			try {
-				byte[] content = readFileImage(args[2]);
+				Date date = new Date(); 
+				byte[] content = readFileImage("test.jpg");
 				System.out.println("content length:" + content.length);
 				ImageItem pic = new ImageItem("pic", content);
-				String s = java.net.URLEncoder.encode(args[1], "utf-8");
-				String access_token = args[0];
+				String s = java.net.URLEncoder.encode(date+" test ", "utf-8") + "http://www.baidu.com";
+				String access_token = "2.00e6JrLGUFJn_Ce98f8c1094fIN44E";
 				Timeline tm = new Timeline(access_token);
-				Status status = tm.uploadStatus(s, pic);
+				Status status = tm.share(s, pic);
 
 				System.out.println("Successfully upload the status to ["
 						+ status.getText() + "].");
